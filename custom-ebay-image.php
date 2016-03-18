@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Custom eBay Image Add on
  * Plugin URI: https://www.wplab.com/
- * Description: An e-commerce toolkit that helps you split woocommerce order
+ * Description: An e-commerce toolkit that helps you 	
  * Version: 1.0
  * Author: Hamilton Nieri
  * Author URI: https://www.wplab.com/
@@ -32,87 +32,55 @@ if ( ! function_exists( 'get_plugins' ) )
     require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 // Including base class
-if ( ! class_exists( 'WC_Split_Order_UI' ) )
-    require_once plugin_dir_path( __FILE__ ) . 'classes/class-wc-split-order-ui.php';
+if ( ! class_exists( 'WC_MetaBox_Custom_ebay_Images' ) )
+    require_once plugin_dir_path( __FILE__ ) . 'classes/class-wc-mb-ebay-images.php';
 
 // Whether plugin active or not
 if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) :
 
 	/**
-	 * Display Metabox Shippment Tracking on order admin page
+	 * Display Image Gallery Metabox on edit product page
 	 **/
 
-	add_action( 'add_meta_boxes', 'wso_add_meta_boxes' );
+	add_action( 'add_meta_boxes', 'wcei_add_meta_boxes' );
 
-	function wso_add_meta_boxes(){
+	function wcei_add_meta_boxes(){
 
 	    add_meta_box(
-	        'woocommerce-split-order',
-	        'Split current order',
-	        'split_order_meta',
-	        'shop_order',
+	        'woocommerce-custom-ebay-image',
+	        'Custom eBay Image',
+	        'custom_ebay_image_meta',
+	        'product',
 	        'side',
 	        'default'
 	    );
 
 	}
 
-	// global 
-	$wso = NULL;
+	$wcei = NULL;
 
 	/**
 	 * Outputs the content of the meta box
 	 */
-	function split_order_meta( $post ) {
+	function custom_ebay_image_meta( $post ) {
 		
-		// The object
-		global $wso;
-	    $wso = new WC_Split_Order_UI( $post );
-	    $wso->output_metabox_content();
+		global $wcei;
+		$wcei = new WC_MetaBox_Custom_ebay_Images( $post );
+		echo $wcei->output();
+
 	}
 
 	/**
-	 * WP AJAX called by "Split" button on edit order page
-	 */
-	add_action( 'wp_ajax_split_order', 'split_order_action' );
-	function split_order_action() {
+	 * Save attachments to _ebay_image_gallery
+	 */	
 
-		if ( ! class_exists( 'WC_Split_Order' ) )
-	    	require_once(plugin_dir_path( __FILE__ ) . 'classes/class-wc-split-order.php');
+	add_action( 'save_post', 'wcei_save_ebay_gallery', 10, 3 );
 
-		if( ! isset($_POST['orderData']) )
-		{
-			echo 0;
-			exit;
-		}
+	function wcei_save_ebay_gallery( $post_id, $post, $update ) {
+ 		
+		$attachment_ids = isset( $_POST['ebay_image_gallery'] ) ? array_filter( explode( ',', wc_clean( $_POST['ebay_image_gallery'] ) ) ) : array();
+		update_post_meta( $post_id, '_ebay_image_gallery', implode( ',', $attachment_ids ) );
 
-		$input = $_POST['orderData'];
-
-	    $order_id = $input['order_id'];
-	    $line_items = $input['line_items'];
-
-	    $wso = new WC_Split_Order( $order_id, $line_items );
-
-	    // Return new order's ID
-	    echo $wso->newOrderID;
-
-	    exit;
 	}
-
-else :
-
-	/**
-     * Getting notice if WooCommerce not active
-     * 
-     * @return string
-     */
-	function wso_notice() {
-        global $current_screen;
-        if ( $current_screen->parent_base == 'plugins' ) {
-            echo '<div class="error"><p>'.__( 'The <strong>WooCommerce Split Order</strong> plugin requires the <a href="http://wordpress.org/plugins/woocommerce" target="_blank">WooCommerce</a> plugin to be activated in order to work. Please <a href="'.admin_url( 'plugin-install.php?tab=search&type=term&s=WooCommerce' ).'" target="_blank">install WooCommerce</a> or <a href="'.admin_url( 'plugins.php' ).'">activate</a> first.' ).'</p></div>';
-        }
-    }
-    add_action( 'admin_notices', 'wso_notice' );
 
 endif;
-
