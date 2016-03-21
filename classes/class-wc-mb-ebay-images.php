@@ -100,13 +100,13 @@ class WC_MetaBox_Custom_ebay_Images {
 
 						// need to update product meta to set new gallery ids
 						if ( $update_meta ) {
-							update_post_meta( $post->ID, '_product_image_gallery', implode( ',', $updated_gallery_ids ) );
+							update_post_meta( $post->ID, '_ebay_image_gallery', implode( ',', $updated_gallery_ids ) );
 						}
 					}
 				?>
 			</ul>
 
-			<input type="hidden" id="ebay_image_gallery" name="ebay_image_gallery" value="<?php echo esc_attr( $product_image_gallery ); ?>" />
+			<input type="hidden" id="ebay_image_gallery" name="ebay_image_gallery" value="<?php echo esc_attr( $ebay_image_gallery ); ?>" />
 
 		</div>
 		<p class="add_ebay_images hide-if-no-js">
