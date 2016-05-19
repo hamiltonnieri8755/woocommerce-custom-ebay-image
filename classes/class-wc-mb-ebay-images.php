@@ -50,6 +50,10 @@ class WC_MetaBox_Custom_ebay_Images {
 		<div id="ebay_images_container">
 			<ul class="ebay_images">
 				<?php
+
+					// Init 
+					$ebay_image_gallery = "";
+
 					if ( (!metadata_exists('post', $post->ID , '_ebay_image_gallery')) && metadata_exists('post', $post->ID, '_product_image_gallery') ) {
 
 						// _ebay_image_gallery meta field is not set but the post has _product_image_gallery
@@ -78,12 +82,12 @@ class WC_MetaBox_Custom_ebay_Images {
 
 					if ( ! empty( $attachments ) ) {
 						foreach ( $attachments as $attachment_id ) {
+
 							$attachment = wp_get_attachment_image( $attachment_id, 'thumbnail' );
 
-							// if attachment is empty skip
+							// if attachment is empty, then skip
 							if ( empty( $attachment ) ) {
 								$update_meta = true;
-
 								continue;
 							}
 
